@@ -73,3 +73,105 @@ cout << getName() << " is walking by your side " << endl;
 decreaseEnergy(20);
 }
 };
+
+
+class Cat : public Animal {
+public:
+Cat(string name, int energy) : Animal(name, energy) {}
+
+void meow() {
+cout << getName() << " says: Meow!Meow! " << endl;
+decreaseEnergy(5);
+}
+
+void sleep() {
+cout << getName() << " is sleeping " << endl;
+increaseEnergy(25);
+}
+};
+
+
+class Bird : public Animal {
+public:
+Bird(string name, int energy) : Animal(name, energy) {}
+
+void fly() {
+cout << getName() << " is flying " << endl;
+decreaseEnergy(20);
+}
+
+void sing() {
+cout << getName() << " is singing " << endl;
+decreaseEnergy(5);
+}
+};
+
+
+int main() {
+
+int choice;
+string name;
+
+cout << "Choose your animal: \n";
+cout << "1. Dog\n2. Cat\n3. Bird\n";
+cin >> choice;
+
+cout << "Enter the name: ";
+cin >> name;
+
+if (choice == 1) {
+Dog pet(name, 100);
+int option;
+
+do {
+cout << "\n1. Bark\n2. Rest\n3. Play\n4. Walk\n5. Show Energy\n0. Exit\n";
+cin >> option;
+
+switch(option) {
+case 1: pet.bark(); break;
+case 2: pet.rest(); break;
+case 3: pet.play(); break;
+case 4: pet.walk(); break;
+case 5: pet.showEnergy(); break;
+}
+
+} while(option != 0);
+}
+
+else if (choice == 2) {
+Cat pet(name, 100);
+int option;
+
+do {
+cout << "\n1. Meow\n2. Sleep\n3. Show Energy\n0. Exit\n";
+cin >> option;
+
+switch(option) {
+case 1: pet.meow(); break;
+case 2: pet.sleep(); break;
+case 3: pet.showEnergy(); break;
+}
+
+} while(option != 0);
+}
+
+else if (choice == 3) {
+Bird pet(name, 100);
+int option;
+
+do {
+cout << "\n1. Fly\n2. Sing\n3. Show Energy\n0. Exit\n";
+cin >> option;
+
+switch(option) {
+case 1: pet.fly(); break;
+case 2: pet.sing(); break;
+case 3: pet.showEnergy(); break;
+}
+
+} while(option != 0);
+}
+cout << "Goodbye!" << endl;
+
+return 0;
+}
