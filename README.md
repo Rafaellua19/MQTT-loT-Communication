@@ -1,105 +1,68 @@
-MQTT BROKER SYSTEM – FULL SETUP GUIDE
+ROBOT PROJECT: TEXT-TO-SPEECH (TTS) GUIDE
+Developer: Alan (Text to Speech)
+Target Hardware: Raspberry Pi 2 ("Sin Raya") - 10.21.16.120
+MQTT Broker: Raspberry Pi 1 ("Rayita") - 10.21.60.231
 
-PROJECT STRUCTURE:
-Each team runs their script on a separate Raspberry Pi.
+1. PROJECT OVERVIEW
+This module is the "mouth" of the robot. It subscribes to the topic robot/audio/play and waits for JSON messages containing text. Once a message is received, it uses Google TTS to generate audio and plays it through the Raspberry Pi's hardware.
 
-Team 1 (STT)        - script.py
-Team 2 (LLM)        - llm_bridge.py
-Team 3 (TTS)        - Text to Speech.py
-Team 4 (MQTT/Broker)- response.py
-_______________________________________________________________________________
-NETWORK REQUIREMENTS:
+2. REQUIRED FILES
+Place these files in your project folder:
 
-All devices must be on the same network.
-Set broker IP (example):
-10.21.60.231
+gtts_say.py: The main Python script that handles MQTT and speech.
 
-Use this same IP in ALL scripts.
-_______________________________________________________________________________
-MQTT TOPICS:
-robot/speech/text
-robot/llm/request
-robot/llm/response
-robot/audio/play
-_________________________________________________________________________________
-MESSAGE FLOW:
-STT - robot/speech/text
-MQTT - robot/llm/request
-LLM - robot/llm/response
-MQTT - robot/audio/play
-TTS - SPEAK
-_________________________________________________________________________________
-INSTALL ON ALL RASPBERRY PIs:
+requirements.txt: List of Python dependencies.
 
+
+.gitignore: To keep the folder clean from temporary files.
+
+3. SYSTEM INSTALLATION
+Before running the script, the Raspberry Pi needs specific system tools installed:
+
+Bash
+# Update the system and install FFmpeg and ALSA tools
 sudo apt update
-sudo apt install python3-pip -y
-pip install paho-mqtt
-_________________________________________________________________________________
-INSTALL ON STT (TEAM 1 ONLY)
+sudo apt install ffmpeg alsa-utils -y
+4. PYTHON SETUP
+I am using a virtual environment to keep the project organized. Follow these steps to set it up:
 
-pip install vosk sounddevice openwakeword numpy
+Bash
+# Create the virtual environment
+python3 -m venv venv
 
-_________________________________________________________________________________
-INSTALL ON BROKER (TEAM 4 ONLY):
+# Activate the environment
+source venv/bin/activate
 
-sudo apt install mosquitto mosquitto-clients -y
-sudo systemctl start mosquitto
-sudo systemctl enable mosquitto
-_________________________________________________________________________________
-INSTALL ON LLM (TEAM 2 ONLY):
+# Install the necessary libraries
+pip install gTTS paho-mqtt
+5. RUNNING THE MODULE
+Make sure the MQTT Broker (Mosquitto) is running on Pi 1. Then, run the script:
 
-pip install requests paho-mqtt
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull llama3.2:1b
+Bash
+python gtts_say.py
+6. MQTT TOPIC & DATA FORMAT
+The other teams (LLM/Reasoning) must send messages to my topic using the following format:
 
-__________________________________________________________________________________
+Topic: robot/audio/play
 
-INSTALL ON TTS (TEAM 3 ONLY):
+Format: JSON
 
-sudo apt install ffmpeg alsa-utils mpg123 -y
-pip install gTTS
-_________________________________________________________________________________
-IMPORTANT CODE SETTINGS:
+Example Payload:
 
-Set broker IP:
-BROKER_IP = "10.21.60.231"
+JSON
+{
+  "text": "Hello, I am the robot. How can I help you today?",
+  "lang": "en",
+  "tld": "com"
+}
+7. MANUAL TESTING
+To test if the TTS is working without the rest of the robot, run this command from any terminal connected to the network:
 
-All topic names must match exactly across every Raspberry Pi.
-__________________________________________________________________________________
-RUN ORDER:
+Bash
+mosquitto_pub -h 10.21.60.231 -t "robot/audio/play" -m '{"text": "Testing the audio system", "lang": "en", "tld": "com"}'
+Summary of requirements.txt content:
+Ensure this file exists in your folder with these two lines:
 
-1. Start broker (TEAM 4)
-
-    sudo systemctl start mosquitto
-    sudo systemctl enable mosquitto
-    python3 response.py
-
-2. Start LLM(Team 2)
-
-    python3 llm_bridge.py
-
-3. Start TTS(Team 3)
-
-    python3 Text to Speech.py
-
-4. Start STT(Team 1)
-
-    python3 script.py
-
-Team 1 (STT)        - script.py
-Team 2 (LLM)        - llm_bridge.py
-Team 3 (TTS)        - Text to Speech.py
-Team 4 (MQTT/Broker)- response.py
-______________________________________________________________________________________
-
-NOTES:
-
-Only ONE broker should run
-
-Topics must match EXACTLY
-
-JSON format must match EXACTLY
-
-If using a custom Ollama model:
-ollama create llama-json -f Modelfile
-
+Plaintext
+gTTS
+paho-mqtt
